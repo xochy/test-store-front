@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda - Gestión (React)</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        /* CSS proporcionado anteriormente */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 300;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .checkbox-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .product-price {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const apiUrl = 'http://127.0.0.1:8000'; // Asegúrate de que esta URL sea correcta para tu API
+
+        function App() {
+            const [activePage, setActivePage] = useState('products');
+            const [loading, setLoading] = useState(false);
+            const [products, setProducts] = useState([]);
+            const [orders, setOrders] = useState([]);
+
+            const [showProductModal, setShowProductModal] = useState(false);
+            const [editingProduct, setEditingProduct] = useState(null);
+            const [productForm, setProductForm] = useState({
+                nombre: '',
+                precio: '',
+                descripcion: ''
+            });
+
+            const [showOrderModal, setShowOrderModal] = useState(false);
+            const [editingOrder, setEditingOrder] = useState(null);
+            const [orderForm, setOrderForm] = useState({
+                products: [],
+                estado: 'pendiente'
+            });
+
+            // Equivalent to Vue's `mounted` hook
+            useEffect(() => {
+                const initialLoad = async () => {
+                    await loadProducts();
+                    await loadOrders();
+                };
+                initialLoad();
+            }, []); // Empty dependency array means this runs once after the initial render
+
+            // --- Product Methods ---
+            const loadProducts = async () => {
+                setLoading(true);
+                try {
+                    const response = await fetch(`${apiUrl}/products/`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setProducts(data);
+                } catch (error) {
+                    console.error('Error al cargar productos:', error);
+                    alert('Error al cargar productos: ' + error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const openProductModal = (product = null) => {
+                setEditingProduct(product);
+                if (product) {
+                    setProductForm({ ...product });
+                } else {
+                    setProductForm({
+                        nombre: '',
+                        precio: '',
+                        descripcion: ''
+                    });
+                }
+                setShowProductModal(true);
+            };
+
+            const closeProductModal = () => {
+                setShowProductModal(false);
+                setEditingProduct(null);
+            };
+
+            const handleProductFormChange = (e) => {
+                const { name, value, type } = e.target;
+                setProductForm(prevForm => ({
+                    ...prevForm,
+                    [name]: type === 'number' ? parseFloat(value) : value
+                }));
+            };
+
+            const saveProduct = async (e) => {
+                e.preventDefault();
+                try {
+                    const url = editingProduct
+                        ? `${apiUrl}/products/${editingProduct.id}`
+                        : `${apiUrl}/products/`;
+
+                    const method = editingProduct ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(productForm)
+                    });
+
+                    if (response.ok) {
+                        alert(editingProduct ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente');
+                        closeProductModal();
+                        await loadProducts();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.detail || 'Error desconocido'));
+                    }
+                } catch (error) {
+                    alert('Error al guardar producto: ' + error.message);
+                }
+            };
+
+            const deleteProduct = async (productId) => {
+                if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+                    try {
+                        const response = await fetch(`${apiUrl}/products/${productId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            alert('Producto eliminado exitosamente');
+                            await loadProducts();
+                            await loadOrders(); // Recargar pedidos por si había referencias
+                        } else {
+                            alert('Error al eliminar producto');
+                        }
+                    } catch (error) {
+                        alert('Error al eliminar producto: ' + error.message);
+                    }
+                }
+            };
+
+            // --- Order Methods ---
+            const loadOrders = async () => {
+                setLoading(true);
+                try {
+                    const response = await fetch(`${apiUrl}/orders/`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setOrders(data);
+                } catch (error) {
+                    console.error('Error al cargar pedidos:', error);
+                    alert('Error al cargar pedidos: ' + error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const openOrderModal = (order = null) => {
+                setEditingOrder(order);
+                if (order) {
+                    setOrderForm({
+                        products: [...order.products],
+                        estado: order.estado
+                    });
+                } else {
+                    setOrderForm({
+                        products: [],
+                        estado: 'pendiente'
+                    });
+                }
+                setShowOrderModal(true);
+            };
+
+            const closeOrderModal = () => {
+                setShowOrderModal(false);
+                setEditingOrder(null);
+            };
+
+            const handleOrderFormChange = (e) => {
+                const { name, value, checked, type } = e.target;
+
+                if (type === 'checkbox') {
+                    setOrderForm(prevForm => ({
+                        ...prevForm,
+                        products: checked
+                            ? [...prevForm.products, value]
+                            : prevForm.products.filter(id => id !== value)
+                    }));
+                } else {
+                    setOrderForm(prevForm => ({
+                        ...prevForm,
+                        [name]: value
+                    }));
+                }
+            };
+
+            const saveOrder = async (e) => {
+                e.preventDefault();
+                if (orderForm.products.length === 0) {
+                    alert('Debes seleccionar al menos un producto para el pedido.');
+                    return;
+                }
+
+                try {
+                    let body;
+                    let url;
+                    let method;
+
+                    if (editingOrder) {
+                        url = `${apiUrl}/orders/${editingOrder.id}`;
+                        method = 'PUT';
+                        body = JSON.stringify({
+                            products: orderForm.products,
+                            estado: orderForm.estado
+                        });
+                    } else {
+                        url = `${apiUrl}/orders/`;
+                        method = 'POST';
+                        body = JSON.stringify({
+                            products: orderForm.products.map(id => ({ product_id: id }))
+                        });
+                    }
+
+                    const response = await fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body
+                    });
+
+                    if (response.ok) {
+                        alert(editingOrder ? 'Pedido actualizado exitosamente' : 'Pedido creado exitosamente');
+                        closeOrderModal();
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.detail || 'Error desconocido'));
+                    }
+                } catch (error) {
+                    alert('Error al guardar pedido: ' + error.message);
+                }
+            };
+
+            const deleteOrder = async (orderId) => {
+                if (window.confirm('¿Estás seguro de que deseas eliminar este pedido?')) {
+                    try {
+                        const response = await fetch(`${apiUrl}/orders/${orderId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            alert('Pedido eliminado exitosamente');
+                            await loadOrders();
+                        } else {
+                            alert('Error al eliminar pedido');
+                        }
+                    } catch (error) {
+                        alert('Error al eliminar pedido: ' + error.message);
+                    }
+                }
+            };
+
+            // --- Helper Functions ---
+            const getOrderProductNames = (productIds) => {
+                return productIds.map(id => {
+                    const product = products.find(p => p.id === id);
+                    return product ? product.nombre : 'Producto desconocido';
+                });
+            };
+
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
+            return (
+                <div>
+                    <header>
+                        <nav className="container">
+                            <div className="logo">Mi Tienda</div>
+                            <ul className="nav-links">
+                                <li>
+                                    <a
+                                        href="#"
+                                        onClick={() => setActivePage('products')}
+                                        className={activePage === 'products' ? 'active' : ''}
+                                    >
+                                        Productos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#"
+                                        onClick={() => setActivePage('orders')}
+                                        className={activePage === 'orders' ? 'active' : ''}
+                                    >
+                                        Pedidos
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </header>
+
+                    <div className="container">
+                        {/* Productos */}
+                        {activePage === 'products' && (
+                            <div className="page active">
+                                <div className="page-header">
+                                    <h1 className="page-title">Productos</h1>
+                                    <button onClick={() => openProductModal()} className="btn btn-primary">
+                                        Agregar Producto
+                                    </button>
+                                </div>
+
+                                <div className="card">
+                                    {loading ? (
+                                        <div className="loading">
+                                            <p>Cargando productos...</p>
+                                        </div>
+                                    ) : products.length === 0 ? (
+                                        <div className="empty-state">
+                                            <h3>No hay productos</h3>
+                                            <p>Agrega tu primer producto para comenzar.</p>
+                                        </div>
+                                    ) : (
+                                        <table className="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Precio</th>
+                                                    <th>Descripción</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {products.map(product => (
+                                                    <tr key={product.id}>
+                                                        <td>{product.nombre}</td>
+                                                        <td>${product.precio.toFixed(2)}</td>
+                                                        <td>{product.descripcion}</td>
+                                                        <td>
+                                                            <div className="actions">
+                                                                <button
+                                                                    onClick={() => openProductModal(product)}
+                                                                    className="btn btn-secondary btn-sm"
+                                                                >
+                                                                    Editar
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => deleteProduct(product.id)}
+                                                                    className="btn btn-danger btn-sm"
+                                                                >
+                                                                    Eliminar
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Pedidos */}
+                        {activePage === 'orders' && (
+                            <div className="page active">
+                                <div className="page-header">
+                                    <h1 className="page-title">Pedidos</h1>
+                                    <button onClick={() => openOrderModal()} className="btn btn-primary">
+                                        Crear Pedido
+                                    </button>
+                                </div>
+
+                                <div className="card">
+                                    {loading ? (
+                                        <div className="loading">
+                                            <p>Cargando pedidos...</p>
+                                        </div>
+                                    ) : orders.length === 0 ? (
+                                        <div className="empty-state">
+                                            <h3>No hay pedidos</h3>
+                                            <p>Crea tu primer pedido para comenzar.</p>
+                                        </div>
+                                    ) : (
+                                        <table className="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Productos</th>
+                                                    <th>Fecha</th>
+                                                    <th>Estado</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {orders.map(order => (
+                                                    <tr key={order.id}>
+                                                        <td>{order.id.substring(0, 8)}...</td>
+                                                        <td>{getOrderProductNames(order.products).join(', ')}</td>
+                                                        <td>{formatDate(order.fecha)}</td>
+                                                        <td>
+                                                            <span style={{ color: order.estado === 'completado' ? 'green' : 'orange' }}>
+                                                                {order.estado}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <div className="actions">
+                                                                <button
+                                                                    onClick={() => openOrderModal(order)}
+                                                                    className="btn btn-secondary btn-sm"
+                                                                >
+                                                                    Editar
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => deleteOrder(order.id)}
+                                                                    className="btn btn-danger btn-sm"
+                                                                >
+                                                                    Eliminar
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Modal Producto */}
+                    {showProductModal && (
+                        <div className="modal-overlay" onClick={closeProductModal}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{editingProduct ? 'Editar Producto' : 'Agregar Producto'}</h2>
+                                    <button onClick={closeProductModal} className="modal-close">&times;</button>
+                                </div>
+                                <form onSubmit={saveProduct}>
+                                    <div className="form-group">
+                                        <label className="form-label">Nombre</label>
+                                        <input
+                                            name="nombre"
+                                            value={productForm.nombre}
+                                            onChange={handleProductFormChange}
+                                            type="text"
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Precio</label>
+                                        <input
+                                            name="precio"
+                                            value={productForm.precio}
+                                            onChange={handleProductFormChange}
+                                            type="number"
+                                            step="0.01"
+                                            min="0.01"
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Descripción</label>
+                                        <textarea
+                                            name="descripcion"
+                                            value={productForm.descripcion}
+                                            onChange={handleProductFormChange}
+                                            className="form-input form-textarea"
+                                            required
+                                        ></textarea>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="button" onClick={closeProductModal} className="btn btn-secondary">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" className="btn btn-primary">
+                                            {editingProduct ? 'Actualizar' : 'Crear'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal Pedido */}
+                    {showOrderModal && (
+                        <div className="modal-overlay" onClick={closeOrderModal}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{editingOrder ? 'Editar Pedido' : 'Crear Pedido'}</h2>
+                                    <button onClick={closeOrderModal} className="modal-close">&times;</button>
+                                </div>
+                                <form onSubmit={saveOrder}>
+                                    <div className="form-group">
+                                        <label className="form-label">Productos</label>
+                                        {products.length === 0 ? (
+                                            <div className="empty-state">
+                                                <p>No hay productos disponibles. Crea algunos productos primero.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="checkbox-group">
+                                                {products.map(product => (
+                                                    <div key={product.id} className="checkbox-item">
+                                                        <input
+                                                            type="checkbox"
+                                                            id={`product-${product.id}`}
+                                                            value={product.id}
+                                                            checked={orderForm.products.includes(product.id)}
+                                                            onChange={handleOrderFormChange}
+                                                        />
+                                                        <label htmlFor={`product-${product.id}`} className="product-info">
+                                                            <div className="product-name">{product.nombre}</div>
+                                                            <div className="product-price">${product.precio.toFixed(2)}</div>
+                                                        </label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {editingOrder && (
+                                        <div className="form-group">
+                                            <label className="form-label">Estado</label>
+                                            <select
+                                                name="estado"
+                                                value={orderForm.estado}
+                                                onChange={handleOrderFormChange}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="pendiente">Pendiente</option>
+                                                <option value="completado">Completado</option>
+                                            </select>
+                                        </div>
+                                    )}
+                                    <div className="modal-footer">
+                                        <button type="button" onClick={closeOrderModal} className="btn btn-secondary">
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                            disabled={products.length === 0 || orderForm.products.length === 0}
+                                        >
+                                            {editingOrder ? 'Actualizar' : 'Crear'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Renderiza la aplicación React en el elemento con id="root"
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+
+</html>
